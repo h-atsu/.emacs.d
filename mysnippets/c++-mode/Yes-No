@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Yes-No
+# key: yn
+# --
+int cans(bool f){
+  if(f) cout << "Yes" << endl;
+  else cout << "No" << endl;
+  return 0;
+}

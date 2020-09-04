@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: chmax_min
+# key: ch
+# --
+template <typename T>
+bool chmax(T &a, T &b) {
+  if(a < b) {
+    a = b;
+    return true;
+  }
+  return false;
+}
+template <typename T>
+bool chmin(T &a, T &b) {
+  if(a > b) {
+    a = b;
+    return true;
+  }
+  return false;
+}

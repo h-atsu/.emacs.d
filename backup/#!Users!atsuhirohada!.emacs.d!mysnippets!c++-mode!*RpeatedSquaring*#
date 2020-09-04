@@ -1,0 +1,11 @@
+# key: rs
+# name: RepeatedSquaring
+# --
+ll RepeatedSquaring(ll N, ll P, ll M) {
+  if(P==0) return 1;
+  if(P%2==0) {
+    ll t = RpeatedSquaring(N, P/2, M);
+    return t*t % M;
+  }
+  return N*RpeatedSquaring(N, P-1, M);
+}

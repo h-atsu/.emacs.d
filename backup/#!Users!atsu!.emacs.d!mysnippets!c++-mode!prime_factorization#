@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: prime_factorization
+# key: pf
+# --
+vector<pair<long long,long long>> prime_factorization(ll N) {
+  vector<pair<long long, long long>> res;
+  for(int p=2; p*p <= N; p++) {
+	if(N % p != 0) continue;
+	int ex = 0;          //exponetial part
+	while(N%p == 0) {
+	  ex++;
+	  N/=p;
+	}
+	res.push_back({p,ex});
+  }
+  if(N!=1) {
+	res.push_back({N,1});
+  }
+  return res;
+}
