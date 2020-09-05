@@ -1,3 +1,0 @@
-echo "こんにちは$(whoami)さん"
-date "+%H%M"
-

@@ -48,6 +48,7 @@
 (with-eval-after-load 'flycheck
   (flycheck-pos-tip-mode))
 (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++11")))
+
 ;; 行数を表示する
 (global-linum-mode t)
 (setq linum-delay t)
