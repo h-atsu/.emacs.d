@@ -1,0 +1,6 @@
+!#/bin/zsh
+mkdir work
+echo -e 'Apple\n123\n.git' > work/test01.dat
+echo -e 'Orange\n230\n.dat' > work/test02.dat
+echo -e 'Grape\n450\n.cnf' > work/test03.dat
+grep a work/*

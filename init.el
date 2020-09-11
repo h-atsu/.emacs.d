@@ -1,42 +1,49 @@
-(defun add-to-load-path (&rest paths)
-  (let (path)
-    (dolist (path paths paths)
-      (let ((default-directory
-	      (expand-file-name (concat user-emacs-directory path))))
-	(add-to-list 'load-path default-directory)
-	(if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-	    (normal-top-level-add-subdirs-to-load-path))))))
-
-(add-to-load-path "elisp" "conf")
-
 ;;package
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/") t)
 (package-initialize)
 
+;; 環境を日本語、UTF-8にする
+(set-locale-environment nil)
+(set-language-environment "Japanese")
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-buffer-file-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(prefer-coding-system 'utf-8)
 
-(require 'cl)
-
-(defvar installing-package-list
-  '(
-    ;; ここに使っているパッケージを書く。
-    company
-    yasnippet
-    dashboard
-    helm
-    powerline
-    ))
-
-(let ((not-installed (loop for x in installing-package-list
-                            when (not (package-installed-p x))
-                            collect x)))
-  (when not-installed
-    (package-refresh-contents)
-    (dolist (pkg not-installed)
-        (package-install pkg))))
+;; neotree（サイドバー）
+(use-package neotree
+  :after
+  projectile
+  :commands
+  (neotree-show neotree-hide neotree-dir neotree-find)
+  :custom
+  (neo-theme 'nerd2)
+  :bind
+  ("<f9>" . neotree-projectile-toggle)
+  :preface
+  (defun neotree-projectile-toggle ()
+    (interactive)
+    (let ((project-dir
+           (ignore-errors
+         ;;; Pick one: projectile or find-file-in-project
+             (projectile-project-root)
+             ))
+          (file-name (buffer-file-name))
+          (neo-smart-open t))
+      (if (and (fboundp 'neo-global--window-exists-p)
+               (neo-global--window-exists-p))
+          (neotree-hide)
+        (progn
+          (neotree-show)
+          (if project-dir
+              (neotree-dir project-dir))
+          (if file-name
+              (neotree-find file-name)))))))
+(global-set-key "\C-o" 'neotree-toggle)
 
 ;;nyan-mode
 (require 'nyan-mode)
@@ -48,7 +55,7 @@
 (with-eval-after-load 'flycheck
   (flycheck-pos-tip-mode))
 (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++11")))
-;; 行数を表示する
+;; 行数を表示する。これは軽くなる魔法
 (global-linum-mode t)
 (setq linum-delay t)
 (defadvice linum-schedule (around my-linum-schedule () activate)
@@ -70,8 +77,6 @@
 (setq mac-option-modifier 'meta)
 ;; C-c c で compile コマンドを呼び出す
 (define-key mode-specific-map "c" 'compile)
-;; C-c C-z で shell コマンドを呼び出す
-(define-key mode-specific-map "¥C-z" 'shell-command)
 ;;disable beep sound
 (setq ring-bell-function 'ignore)
 ;;閉じ括弧
@@ -184,73 +189,7 @@
 
 (helm-mode 1)
 
-
-;;color theme----------------------------------------
-;; (load-theme 'atom-one-dark t)
+;; テーマ
 (load-theme 'dracula t)
 
-;; 透過
-;; (defun set-alpha (alpha-num)
-;;   "set frame parameter 'alpha"
-;;   (interactive "nAlpha: ")
-;;   (set-frame-parameter nil 'alpha (cons alpha-num '(90))))
-;; 初期値
-;;(set-frame-parameter nil 'alpha 92)
-
-
-
-;;power line-----------------------------------------------------
-(require 'powerline)
-(defconst color1 "SteelBlue")
-(defconst color2 "salmon")
-
-(set-face-attribute 'mode-line nil
-                    :foreground "#fff"
-                    :background color1
-                    :bold t
-                    :box nil)
-
-(set-face-attribute 'powerline-active1 nil
-                    :foreground "gray23"
-                    :background color2
-                    :bold t
-                    :box nil
-                    :inherit 'mode-line)
-
-(set-face-attribute 'powerline-active2 nil
-                    :foreground "white smoke"
-                    :background "gray20"
-                    :bold t
-                    :box nil
-                    :inherit 'mode-line)
-
-(set-face-attribute 'mode-line-inactive nil
-                    :foreground "#fff"
-                    :background color1
-                    :bold t
-                    :box nil)
-
-(set-face-attribute 'powerline-inactive1 nil
-                    :foreground "gray23"
-                    :background color2
-                    :bold t
-                    :box nil
-                    :inherit 'mode-line)
-
-(set-face-attribute 'powerline-inactive2 nil
-                    :foreground "white smoke"
-                    :background "gray20"
-                    :bold t
-                    :box nil
-                    :inherit 'mode-line)
-
-(powerline-center-theme)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(spaceline nyan-mode nlinum yasnippet use-package undo-tree tabbar solarized-theme powerline multi-term helm fuzzy flymake flycheck-vdm flycheck-pycheckers flycheck-pos-tip exec-path-from-shell dracula-theme dashboard company-irony auto-complete atom-one-dark-theme)))
 
