@@ -1,0 +1,23 @@
+from matplotlib import pyplot as plt
+import numpy as np
+
+x = np.linspace(-4,4,100)
+
+def f(x):
+    return x*x
+
+y = f(x)
+
+plt.plot(x,y)
+plt.show()
+
+
+
+
+
+
+
+
+
+
+

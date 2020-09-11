@@ -1,0 +1,53 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Changes to be committed:
+#	modified:   .gitignore
+#	deleted:    ac-comphist.dat
+#	deleted:    auto-save-list/.saves-22487-da-ha.local~
+#	deleted:    auto-save-list/.saves-25093-da-ha~
+#	deleted:    backup/!Users!atsu!.emacs.d!.gitignore~
+#	deleted:    backup/!Users!atsu!.emacs.d!init.el~
+#	deleted:    backup/!Users!atsu!.emacs.d!mysnippets!c++-mode!prime_factorization~
+#	deleted:    backup/!Users!atsu!.emacs.d!recentf~
+#	deleted:    backup/!Users!atsu!.zprofile~
+#	deleted:    backup/!Users!atsu!.zshrc~
+#	deleted:    backup/!Users!atsu!Desktop!C!Makefile~
+#	deleted:    backup/!Users!atsu!Desktop!C!test.cpp~
+#	deleted:    backup/!Users!atsu!Desktop!C!test.c~
+#	deleted:    backup/!Users!atsu!Desktop!C++!main.cpp~
+#	deleted:    backup/!Users!atsu!Desktop!kyopuro!C++!main.cpp~
+#	deleted:    backup/!Users!atsu!Desktop!kyopuro!C++!test.cpp~
+#	deleted:    backup/!Users!atsu!Desktop!parmTest~
+#	deleted:    backup/!Users!atsu!Desktop!test!test~
+#	deleted:    backup/!Users!atsu!Desktop!test.sh~
+#	deleted:    backup/!Users!atsu!Desktop!test~
+#	deleted:    backup/!Users!atsu!bin!pdate~
+#	deleted:    backup/!Users!atsu!bin!run~
+#	deleted:    backup/!Users!atsuhirohada!.emacs.d!init.el~
+#	deleted:    backup/!Users!atsuhirohada!.emacs.d!mysnippets!c++-mode!RepeatedSquaring~
+#	deleted:    backup/!Users!atsuhirohada!.emacs.d!recentf~
+#	deleted:    backup/!Users!atsuhirohada!Desktop!C++!b.cpp~
+#	deleted:    backup/!Users!atsuhirohada!Desktop!C++!lib.cpp~
+#	deleted:    backup/!Users!atsuhirohada!Desktop!C++!main.cpp~
+#	deleted:    backup/!etc!apache2!httpd.conf~
+#	deleted:    backup/!private!etc!apache2!httpd.conf~
+#	deleted:    backup/#!Desktop!C++!main.cpp#
+#	deleted:    backup/#!Users!atsu!.emacs.d!init.el#
+#	deleted:    backup/#!Users!atsu!.emacs.d!mysnippets!c++-mode!*prime_factorization*#
+#	deleted:    backup/#!Users!atsu!.emacs.d!mysnippets!c++-mode!prime_factorization#
+#	deleted:    backup/#!Users!atsu!Desktop!C!Makefile#
+#	deleted:    backup/#!Users!atsu!Desktop!C++!main.cpp#
+#	deleted:    backup/#!Users!atsu!Desktop!kyopuro!C++!main.cpp#
+#	deleted:    backup/#!Users!atsu!Desktop!kyopuro!C++!test.cpp#
+#	deleted:    backup/#!Users!atsuhirohada!.emacs.d!mysnippets!c++-mode!*RpeatedSquaring*#
+#	deleted:    backup/#!Users!atsuhirohada!.emacs.d!mysnippets!c++-mode!.#*RpeatedSquaring*#
+#	deleted:    backup/#!Users!atsuhirohada!Desktop!C++!main.cpp#
+#	deleted:    backup/#!Users!atsuhirohada!Desktop!C++!update#
+#	deleted:    backup/#!etc!apache2!httpd.conf#
+#	modified:   init.el
+#	deleted:    init.el~
+#	deleted:    recentf
+#

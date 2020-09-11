@@ -1,0 +1,9 @@
+def fib(a):
+    if a[-1] > 100:
+        return
+    a.appen(a[-1] + a[-2])
+    fib(a)
+
+a = [1,2]
+fib(a)
+print(a)
