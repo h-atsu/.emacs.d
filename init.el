@@ -1,8 +1,9 @@
+;(setq debug-on-error t)
+
 ;;package
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/") t)
-(package-initialize)
+;(require 'package)
+;(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;(add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/") t)
 
 ;; 環境を日本語、UTF-8にする
 (set-locale-environment nil)
@@ -14,62 +15,189 @@
 (set-default-coding-systems 'utf-8)
 (prefer-coding-system 'utf-8)
 
-;; neotree（サイドバー）
-(use-package neotree
-  :after
-  projectile
-  :commands
-  (neotree-show neotree-hide neotree-dir neotree-find)
-  :custom
-  (neo-theme 'nerd2)
-  :bind
-  ("<f9>" . neotree-projectile-toggle)
+;;leafの設定
+;; Emacs自体が書き込む設定先の変更
+(setq custom-file (locate-user-emacs-file "custom.el"))
+(unless (file-exists-p custom-file)
+  (write-region "" nil custom-file))
+(load custom-file)
+
+(prog1 "prepare leaf"
+  (prog1 "package"
+    (custom-set-variables
+     '(package-archives '(("org"   . "https://orgmode.org/elpa/")
+                          ("melpa" . "https://melpa.org/packages/")
+                          ("gnu"   . "https://elpa.gnu.org/packages/"))))
+    (package-initialize))
+
+  (prog1 "leaf"
+    (unless (package-installed-p 'leaf)
+      (unless (assoc 'leaf package-archive-contents)
+        (package-refresh-contents))
+      (condition-case err
+          (package-install 'leaf)
+        (error
+         (package-refresh-contents)       ; renew local melpa cache if fail
+         (package-install 'leaf))))
+
+    (leaf leaf-keywords
+      :ensure t
+      :config (leaf-keywords-init)))
+
+  (prog1 "optional packages for leaf-keywords"
+    ;; optional packages if you want to use :hydra, :el-get,,,
+    (leaf hydra :ensure t)
+    (leaf el-get :ensure t
+      :custom ((el-get-git-shallow-clone  . t)))))
+
+;; モードラインの設定
+(leaf smart-mode-line
+  :ensure t
+  :custom ((sml/no-confirm-load-theme . t)
+           (sml/theme . 'dark)
+           (sml/shorten-directory . -1))
+  :config
+  (sml/setup))
+
+;; multi-term の設定
+(leaf multi-term
+  :ensure t
+  :custom `((multi-term-program . ,(getenv "SHELL")))
   :preface
-  (defun neotree-projectile-toggle ()
+  (defun namn/open-shell-sub (new)
+   (split-window-below)
+   (enlarge-window 5)
+   (other-window 1)
+   (let ((term) (res))
+     (if (or new (null (setq term (dolist (buf (buffer-list) res)
+                                    (if (string-match "*terminal<[0-9]+>*" (buffer-name buf))
+                                        (setq res buf))))))
+         (multi-term)
+       (switch-to-buffer term))))
+  (defun namn/open-shell ()
     (interactive)
-    (let ((project-dir
-           (ignore-errors
-         ;;; Pick one: projectile or find-file-in-project
-             (projectile-project-root)
-             ))
-          (file-name (buffer-file-name))
-          (neo-smart-open t))
-      (if (and (fboundp 'neo-global--window-exists-p)
-               (neo-global--window-exists-p))
-          (neotree-hide)
-        (progn
-          (neotree-show)
-          (if project-dir
-              (neotree-dir project-dir))
-          (if file-name
-              (neotree-find file-name)))))))
-(global-set-key "\C-o" 'neotree-toggle)
+    (namn/open-shell-sub t))
+  (defun namn/to-shell ()
+    (interactive)
+    (namn/open-shell-sub nil))
+  :bind (("C-^"   . namn/to-shell)
+         ("C-M-^" . namn/open-shell)
+         (:term-raw-map
+          ("C-t" . other-window))))
 
-;;nyan-mode
-(require 'nyan-mode)
-(nyan-mode)
-(nyan-start-animation)
+(leaf flycheck
+  :doc "On-the-fly syntax checking"
+  :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
+  :tag "minor-mode" "tools" "languages" "convenience" "emacs>=24.3"
+  :url "http://www.flycheck.org"
+  :emacs>= 24.3
+  :ensure t
+  :bind (("M-n" . flycheck-next-error)
+         ("M-p" . flycheck-previous-error))
+  :global-minor-mode global-flycheck-mode)
 
-;; flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
-(with-eval-after-load 'flycheck
-  (flycheck-pos-tip-mode))
-(add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++11")))
+(leaf paren
+  :doc "highlight matching paren"
+  :tag "builtin"
+  :custom ((show-paren-delay . 0.1))
+  :global-minor-mode show-paren-mode)
+
+(leaf cc-mode
+  :doc "major mode for editing C and similar languages"
+  :tag "builtin"
+  :defvar (c-basic-offset)
+  :bind (c-mode-base-map
+         ("C-c c" . compile))
+  :mode-hook
+  (c-mode-hook . ((c-set-style "bsd")
+                  (setq c-basic-offset 4)))
+  (c++-mode-hook . ((c-set-style "bsd")
+                    (setq c-basic-offset 4)
+		    (setq flycheck-clang-language-standard "c++11"))))
+
+;; ivy-modeの設定
+(leaf ivy
+  :doc "Incremental Vertical completYon"
+  :req "emacs-24.5"
+  :tag "matching" "emacs>=24.5"
+  :url "https://github.com/abo-abo/swiper"
+  :emacs>= 24.5
+  :ensure t
+  :leaf-defer nil
+  :custom ((ivy-initial-inputs-alist . nil)
+           (ivy-re-builders-alist . '((t . ivy--regex-fuzzy)
+                                      (swiper . ivy--regex-plus)))
+           (ivy-use-selectable-prompt . t))
+  :global-minor-mode t
+  :config
+  (leaf swiper
+    :doc "Isearch with an overview. Oh, man!"
+    :req "emacs-24.5" "ivy-0.13.0"
+    :tag "matching" "emacs>=24.5"
+    :url "https://github.com/abo-abo/swiper"
+    :emacs>= 24.5
+    :ensure t
+    :bind (("C-s" . swiper)))
+
+  (leaf counsel
+    :doc "Various completion functions using Ivy"
+    :req "emacs-24.5" "swiper-0.13.0"
+    :tag "tools" "matching" "convenience" "emacs>=24.5"
+    :url "https://github.com/abo-abo/swiper"
+    :emacs>= 24.5
+    :ensure t
+    :bind (("C-S-s" . counsel-imenu)
+           ("C-x C-r" . counsel-recentf))
+    :custom `((counsel-yank-pop-separator . "\n----------\n")
+              (counsel-find-file-ignore-regexp . ,(rx-to-string '(or "./" "../") 'no-group)))
+    :global-minor-mode t))
+
+(leaf prescient
+  :doc "Better sorting and filtering"
+  :req "emacs-25.1"
+  :tag "extensions" "emacs>=25.1"
+  :url "https://github.com/raxod502/prescient.el"
+  :emacs>= 25.1
+  :ensure t
+  :commands (prescient-persist-mode)
+  :custom `((prescient-aggressive-file-save . t)
+            (prescient-save-file . ,(locate-user-emacs-file "prescient")))
+  :global-minor-mode prescient-persist-mode)
+  
+(leaf ivy-prescient
+  :doc "prescient.el + Ivy"
+  :req "emacs-25.1" "prescient-4.0" "ivy-0.11.0"
+  :tag "extensions" "emacs>=25.1"
+  :url "https://github.com/raxod502/prescient.el"
+  :emacs>= 25.1
+  :ensure t
+  :after prescient ivy
+  :custom ((ivy-prescient-retain-classic-highlighting . t))
+  :global-minor-mode t)
+
+
+;; モードラインの設定
+(leaf nyan-mode
+  :ensure t
+  :config
+  (nyan-mode)
+  (nyan-start-animation))
+
+
+
+
+
 ;; 行数を表示する。これは軽くなる魔法
-
 (global-linum-mode t)
 (setq linum-delay t)
 (defadvice linum-schedule (around my-linum-schedule () activate)
   (run-with-idle-timer 0.2 nil #'linum-update-current))
+;; スクロールは1行ごとに
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 5)))
 ;; カーソルの点滅をやめる
 (blink-cursor-mode 0)
-;; カーソル行をハイライトする
-(global-hl-line-mode t)
-;;インデント設定
-(add-hook 'c-mode-hook '(lambda () (setq tab-width 4)))
-(add-hook 'c++-mode-hook '(lambda () (setq tab-width 4)))
 ;; 対応する括弧を光らせる
-(show-paren-mode 1)
+(show-paren-mode t)
 ;;C-h backspace
 (keyboard-translate ?\C-h ?\C-?)
 ;; "yes or no" の選択を "y or n" にする
@@ -95,11 +223,11 @@
 ;;時計を表示，(好みに応じてフォーマットを変更可能)
 (setq display-time-day-and-date t)
 (display-time-mode t)
-;;fontの設定 最強のゆるふわフォントらしい
-;;(set-face-attribute 'default nil
-;;            :family "ゆたぽん（コーディング）Backsl"
-;;            :height 130)
+;; markdownの設定
+(autoload 'markdown-preview-mode "markdown-preview-mode.el" t)
+(setq markdown-preview-stylesheets (list "github.css"))
 
+;; タイトルにフルパスを表示
 (setq frame-title-format "%f")
 ;;ファイルが!# から始まる場合，+xをつけて保存する
 (add-hook 'after-save-hook
@@ -144,53 +272,7 @@
 (setq dashboard-items '((recents  . 20)))
 
 
-
-
-;;setting of helm----------------------------------------------------
-(require 'helm)
-(require 'helm-config)
-
-;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-(global-set-key (kbd "C-c h") 'helm-command-prefix)
-(global-unset-key (kbd "C-x c"))
-
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
-(define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
-
-(when (executable-find "curl")
-  (setq helm-google-suggest-use-curl-p t))
-
-(setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
-      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
-      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
-      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
-      helm-ff-file-name-history-use-recentf t
-      helm-echo-input-in-header-line t)
-
-(defun spacemacs//helm-hide-minibuffer-maybe ()
-  "Hide minibuffer in Helm session if we use the header line as input field."
-  (when (with-helm-buffer helm-echo-input-in-header-line)
-    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-      (overlay-put ov 'window (selected-window))
-      (overlay-put ov 'face
-                   (let ((bg-color (face-background 'default nil)))
-                     `(:background ,bg-color :foreground ,bg-color)))
-      (setq-local cursor-type nil))))
-
-
-(add-hook 'helm-minibuffer-set-up-hook
-          'spacemacs//helm-hide-minibuffer-maybe)
-
-(setq helm-autoresize-max-height 0)
-(setq helm-autoresize-min-height 20)
-(helm-autoresize-mode 1)
-
-(helm-mode 1)
-
 ;; テーマ
 (load-theme 'dracula t)
 
-
+;; init.el ends here

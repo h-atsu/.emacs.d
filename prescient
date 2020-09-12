@@ -1,0 +1,2 @@
+
+(funcall prescient-cache-callback :version '5 :history '#s(hash-table size 65 test equal rehash-size 1.5 rehash-threshold 0.8125 data ("init.el" 0 "Desktop/" 2 "atsu/" 3 "mod.txt" 1)) :frequency '#s(hash-table size 65 test equal rehash-size 1.5 rehash-threshold 0.8125 data ("init.el" 4.943411607256443 "Desktop/" 1.9583849548699552 "atsu/" 0.9791880578299021 "mod.txt" 0.985089730404757)) :serial-number '9)
