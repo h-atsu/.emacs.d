@@ -50,40 +50,65 @@
     (leaf el-get :ensure t
       :custom ((el-get-git-shallow-clone  . t)))))
 
-;; モードラインの設定
-(leaf smart-mode-line
-  :ensure t
-  :custom ((sml/no-confirm-load-theme . t)
-           (sml/theme . 'dark)
-           (sml/shorten-directory . -1))
-  :config
-  (sml/setup))
+;; neotree iconsの導入
+(leaf all-the-icons
+  :ensure t)
 
-;; multi-term の設定
-(leaf multi-term
+;;neotreeの導入
+(leaf neotree
   :ensure t
-  :custom `((multi-term-program . ,(getenv "SHELL")))
+  :bind ("C-o" . neotree-projectile-toggle)
+  :config
+;;  (global-display-line-numbers-mode 0)
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   :preface
-  (defun namn/open-shell-sub (new)
-   (split-window-below)
-   (enlarge-window 5)
-   (other-window 1)
-   (let ((term) (res))
-     (if (or new (null (setq term (dolist (buf (buffer-list) res)
-                                    (if (string-match "*terminal<[0-9]+>*" (buffer-name buf))
-                                        (setq res buf))))))
-         (multi-term)
-       (switch-to-buffer term))))
-  (defun namn/open-shell ()
-    (interactive)
-    (namn/open-shell-sub t))
-  (defun namn/to-shell ()
-    (interactive)
-    (namn/open-shell-sub nil))
-  :bind (("C-^"   . namn/to-shell)
-         ("C-M-^" . namn/open-shell)
-         (:term-raw-map
-          ("C-t" . other-window))))
+    (defun neotree-projectile-toggle ()
+      (interactive)
+      (let ((project-dir
+         (ignore-errors
+         ;;; Pick one: projectile or find-file-in-project
+           (projectile-project-root)
+           ))
+        (file-name (buffer-file-name))
+        (neo-smart-open t))
+    (if (and (fboundp 'neo-global--window-exists-p)
+         (neo-global--window-exists-p))
+        (neotree-hide)
+      (progn
+        (neotree-show)
+        (if project-dir
+        (neotree-dir project-dir))
+        (if file-name
+        (neotree-find file-name)))))))
+
+;;(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+
+
+
+
+;; doom-thmeの導入
+(leaf doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-dracula t)
+  (doom-themes-org-config))
+
+;; にゃーん
+;; (leaf nyan-mode
+;;   :ensure t
+;;   :config
+;;   (nyan-mode)
+;;   (nyan-start-animation))
+;; モードラインの設定
+(leaf doom-modeline
+  :ensure t
+  :custom ((doom-modeline-icon . t)
+           (doom-modeline-major-mode-icon . 'dark)
+           (doom-modeline-minor-modes . nil))
+  :config
+  (line-number-mode 0)
+  (column-number-mode 0))
+
 
 (leaf flycheck
   :doc "On-the-fly syntax checking"
@@ -175,16 +200,13 @@
   :custom ((ivy-prescient-retain-classic-highlighting . t))
   :global-minor-mode t)
 
-
-;; モードラインの設定
-(leaf nyan-mode
-  :ensure t
-  :config
-  (nyan-mode)
-  (nyan-start-animation))
-
-
-
+;; display line numbers  linumの代替だけどneotreeとの相性的にlinumに戻した
+;;(global-display-line-numbers-mode)
+;; テーマはdeeper-blueを使用している。これに合わせた色を選んだつもり
+;;(set-face-attribute 'line-number nil
+;;                   :foreground "gray")
+;;(set-face-attribute 'line-number-current-line nil
+;;                    :foreground "red")
 
 
 ;; 行数を表示する。これは軽くなる魔法
@@ -216,7 +238,7 @@
 (define-key global-map (kbd "C-c l") 'toggle-truncate-lines)
 ;;矩形編集
 (cua-mode t)
-(setq cua-enable-cua-keys nil) 
+(setq cua-enable-cua-keys nil)
 ;; hide bars
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -240,7 +262,8 @@
       `((".*", (expand-file-name "~/.emacs.d/backup/") t)))
 ;;company-modeの設定
 (require 'company)
-(global-company-mode) ; 全バッファで有効にする 
+; 全バッファで有効にする
+;;(global-company-mode)
 (setq company-idle-delay 0) ; デフォルトは0.5
 (setq company-minimum-prefix-length 2) ; デフォルトは4
 (setq company-selection-wrap-around t) ; 候補の一番下でさらに下に行こうとすると一番上に戻る
@@ -257,6 +280,10 @@
 ;; 既存スニペットを閲覧・編集する
 (define-key yas-minor-mode-map (kbd "C-x i v") 'yas-visit-snippet-file)
 (yas-global-mode 1)
+;;画面のチラつき対策
+;;(add-to-list 'default-frame-alist '(inhibit-double-buffering . t)
+(setq auto-save-default nil)
+  
 
 
 ;;setting dash bord-----------------------------------
@@ -273,6 +300,7 @@
 
 
 ;; テーマ
-(load-theme 'dracula t)
+;;(load-theme 'dracula t)
 
 ;; init.el ends here
+(put 'set-goal-column 'disabled nil)

@@ -7,6 +7,9 @@
  '(counsel-yank-pop-separator "
 ----------
 ")
+ '(doom-modeline-icon t)
+ '(doom-modeline-major-mode-icon 'dark)
+ '(doom-modeline-minor-modes nil)
  '(el-get-git-shallow-clone t)
  '(ivy-initial-inputs-alist nil)
  '(ivy-prescient-retain-classic-highlighting t)
@@ -20,7 +23,7 @@
      ("melpa" . "https://melpa.org/packages/")
      ("gnu" . "https://elpa.gnu.org/packages/")))
  '(package-selected-packages
-   '(web-server uuidgen websocket markdown-preview-eww yasnippet use-package undo-tree tabbar spaceline solarized-theme nyan-mode nlinum neotree multi-term helm fuzzy flymake flycheck-vdm flycheck-pycheckers flycheck-pos-tip exec-path-from-shell dracula-theme dashboard company-irony auto-complete atom-one-dark-theme))
+   '(doom-themes web-server uuidgen websocket markdown-preview-eww yasnippet use-package undo-tree tabbar spaceline solarized-theme nyan-mode nlinum neotree multi-term helm fuzzy flymake flycheck-vdm flycheck-pycheckers flycheck-pos-tip exec-path-from-shell dracula-theme dashboard company-irony auto-complete atom-one-dark-theme))
  '(prescient-aggressive-file-save t)
  '(prescient-save-file "~/.emacs.d/prescient")
  '(show-paren-delay 0.1)
