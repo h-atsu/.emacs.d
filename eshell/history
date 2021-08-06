@@ -1,0 +1,13 @@
+ls 
+cd 
+ls ls
+ls 
+lsbom 
+ls 
+cd Desktop
+ls
+cd kyopuro
+lsbom
+ls
+gedit main.py
+pwd 
